@@ -3,19 +3,34 @@
 #include <cstdio>
 #include <cstdlib>
 #include <sys/wait.h>
+#include <algorithm>
+#include <random>
 
 using namespace std;
 
 // defaults
 string interface = "wlan0";
 
-void MACGenerator() {
-  // generate random MAC
+string MACGenerator() {
+  random_device rd;
+  mt19937 g(rd());
+
+  string ChooseFrom = "AAABBBCCCDDDEEEFFF111222333444555666777888999";
+  shuffle(ChooseFrom.begin(), ChooseFrom.end(), g);
+
+  string MAC;
+  for(int i = 0; i < 12; i++) {
+    if(i % 2 == 0 && i != 0) {
+      MAC += ":";
+    } MAC += ChooseFrom[i];
+  }
+
+  return MAC;
 }
 
 void Version() {
   cout << "macchangertoo by\033[36m TypingWalrus\033[0m\n";
-  cout << "Version: 0.1";
+  cout << "Version: 0.12";
   exit(0);
 }
 
@@ -31,12 +46,28 @@ void Help() {
   exit(0);
 }
 
-void MACChange(string mac = "random") {
-  // change the MAC
+string ShowCurrentMAC() {
+  FILE* com = popen("ip link | awk '/ether/ {print $2}'", "-r");
+  string mac;
+  char buf[128];
+
+  while(fgets(buf, sizeof(buf), com) != nullptr) {
+    mac += buf;
+  } pclose(com);
+
+  return mac;
+
+  // FIX THIS LATER
 }
 
-void ShowCurrentMAC() {
-  // show current MAC
+void MACChange(string mac = "random") {
+  if(mac == "random") {
+    mac = MACGenerator();
+  }
+
+  // cout << "Current MAC: " << ShowCurrentMAC();
+  string command = "sudo ip link set dev " + interface + " down && " + "sudo ip link set dev " + interface + " address " + mac + " && sudo ip link set dev " + interface + " up";
+  system(command.c_str());
 }
 
 int main(int argc, char* argv[]) {
@@ -79,6 +110,8 @@ int main(int argc, char* argv[]) {
         ShowCurrentMAC();
       }
     }
+  } else {
+    Help();
   }
 
   return 0;
