@@ -1,3 +1,14 @@
+#include <iostream>
+#include <string>
+#include <cstdio>
+#include <cstdlib>
+#include <sys/wait.h>
+#include <algorithm>
+#include <random>
+
+using namespace std;
+
+// defaults
 string interface = "wlan0";
 
 string MACGenerator() {
