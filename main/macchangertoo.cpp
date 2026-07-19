@@ -40,7 +40,7 @@ string MACGenerator() {
 
 void Version() {
   cout << "macchangertoo by\033[36m TypingWalrus\033[0m\n";
-  cout << "Version: 0.2";
+  cout << "Version: 0.21";
   exit(0);
 }
 
@@ -51,6 +51,7 @@ void Help() {
   cout << "-r                 Set Random MAC\n";
   cout << "-m                 Set MAC manually\n";
   cout << "\033[32m                     macchangertoo -i [INTERFACE] -m [MAC]\033[0m\n";
+  cout << "-p                 Reset MAC\n";
   cout << "-s, --show         Show current MAC\n";
   cout << "-i, --interface    Set the interface\n";
   exit(0);
@@ -58,12 +59,18 @@ void Help() {
 
 string ShowMAC(string command) {
   FILE* com = popen(command.c_str(), "r");
-  string mac;
+  string out, mac;
   char buf[128];
 
   while(fgets(buf, sizeof(buf), com) != nullptr) {
-    mac += buf;
+    out += buf;
   } pclose(com);
+
+  for(auto i : out) {
+    if(i != '\n') {
+      mac += i;
+    }
+  }
 
   return mac;
 }
@@ -74,9 +81,9 @@ void MACChange(string mac = "random") {
   }
 
   cout << "\033[33mPermanent MAC:\033[0m " << ShowMAC("ip link | awk '/ether/ {print $6}'");
-  cout << "\033[33mPrevious MAC:\033[0m " << ShowMAC("ip link | awk '/ether/ {print $2}'");
-  cout << "\033[32mCurrent MAC:\033[0m " << mac;
-  string command = "sudo ip link set dev " + interface + " down && " + "sudo ip link set dev " + interface + " address " + mac + " && sudo ip link set dev " + interface + " up";
+  cout << "\n\033[33mPrevious MAC:\033[0m " << ShowMAC("ip link | awk '/ether/ {print $2}'");
+  cout << "\n\033[32mCurrent MAC:\033[0m " << mac;
+  string command = "sudo ip link set dev " + interface + " down && sudo ip link set dev " + interface + " address " + mac + " && sudo ip link set dev " + interface + " up";
   system(command.c_str());
   exit(0);
 }
@@ -136,7 +143,20 @@ int main(int argc, char* argv[]) {
       }
 
       else if(arg == "-s" || arg == "--show") {
-        ShowMAC("ip link | awk '/ether/ {print $2}'");
+        cout << "\033[33mCurrent MAC:\033[0m " << ShowMAC("ip link | awk '/ether/ {print $2}'");
+      }
+
+      else if(arg == "-p") {
+        if(argc >= 4) {
+          for(int j = 2; j < argc; j++) {
+            string arg_j = argv[j];
+            if(arg_j == "-i" || arg_j == "--interface") {
+              interface = argv[j + 1];
+            }
+          }
+        }
+        string permMAC = ShowMAC("ip link | awk '/ether/ {print $6}'");
+        MACChange(permMAC);
       }
     }
   } else {
