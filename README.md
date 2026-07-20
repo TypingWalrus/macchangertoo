@@ -29,4 +29,22 @@ This MAC changer tool is under development and is expected to come with more fea
 * For it to work you have to compile it with **g++** (for now).
 
 ---
+### **Installation** (will change in the future)
+
+* Run:
+```bash
+git clone https://github.com/TypingWalrus/macchangertoo
+
+cd macchangertoo/main
+g++ main.cpp -o macchangertoo
+
+./macchangertoo
+```
+
+* For it to be accessible anywhere on the system:
+```bash
+mv macchangertoo /bin
+```
+
+---
 Thank you for visiting!
