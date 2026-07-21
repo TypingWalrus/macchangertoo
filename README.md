@@ -16,7 +16,7 @@ This MAC changer tool is under development and is expected to come with more fea
 * [ ] Functionality of changing MAC address to well known vendors.
 * [ ] Fix bugs.
 * [ ] Clean up and optimize code.
-* [ ] Simplify installation with *make*.
+* [x] Simplify installation with *make*.
 
 #### **Extra**
 
@@ -26,19 +26,17 @@ This MAC changer tool is under development and is expected to come with more fea
 ### **Requirements**
 
 * Should work on any **Linux** system.
-* For it to work you have to compile it with **g++** (for now).
+* **Packages**: make, g++
 
 ---
-### **Installation** (will change in the future)
+### **Installation**
 
 * Run:
 ```bash
 git clone https://github.com/TypingWalrus/macchangertoo
-
 cd macchangertoo/main
-g++ main.cpp -o macchangertoo
 
-./macchangertoo
+make
 ```
 
 * For it to be accessible anywhere on the system:
