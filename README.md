@@ -13,7 +13,7 @@ This MAC changer tool is under development and is expected to come with more fea
 * [x] Add the core functionality of the MAC changer.
 * [x] Random MAC generator.
 * [x] Write a README.
-* [ ] Functionality of changing MAC address to well known vendors.
+* [x] Functionality of changing MAC address to well known vendors.
 * [ ] Fix bugs.
 * [ ] Clean up and optimize code.
 * [x] Simplify installation with *make*.
