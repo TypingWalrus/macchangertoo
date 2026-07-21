@@ -26,7 +26,7 @@ This MAC changer tool is under development and is expected to come with more fea
 ### **Requirements**
 
 * Should work on any **Linux** system.
-* **Packages**: make, g++
+* **Packages**: make, g++, git
 
 ---
 ### **Installation**
