@@ -1,38 +1,47 @@
 #include <iostream>
-#include <string>
 #include <cstdio>
 #include <cstdlib>
 #include <sys/wait.h>
 #include <algorithm>
 #include <random>
 
+#include "mac_vendors.hpp"
+
 using namespace std;
 
 // defaults
 string interface = "wlan0";
 
-string MACGenerator() {
+string MACGenerator(bool known_vendor) {
   random_device rd;
   mt19937 g(rd());
 
-  string ChooseFrom = "AABBCCDDEEFF00112233445566778899";
+  string ChooseFrom = "aabbccddeeff00112233445566778899";
   shuffle(ChooseFrom.begin(), ChooseFrom.end(), g);
 
   string MAC;
-  for(int i = 0; i < 12; i++) {
-    if(i == 0 && isdigit(ChooseFrom[i]) && ChooseFrom[i] % 2 != 0) {
-      ChooseFrom[i]--;
-    }
-    if(i == 1) {
-      int value = stoi(string(1, ChooseFrom[1]), nullptr, 16);
-      if(value % 2 != 0) {
-        ChooseFrom[1] = "0123456789ABCDEF"[value - 1];
+  if(!known_vendor) {
+    for(int i = 0; i < 12; i++) {
+      if(i == 0 && isdigit(ChooseFrom[i]) && ChooseFrom[i] % 2 != 0) {
+        ChooseFrom[i]--;
       }
-    }
+      if(i == 1) {
+        int value = stoi(string(1, ChooseFrom[1]), nullptr, 16);
+        if(value % 2 != 0) {
+          ChooseFrom[1] = "0123456789abcdef"[value - 1];
+        }
+      }
 
-    if(i % 2 == 0 && i != 0) {
-      MAC += ":";
-    } MAC += ChooseFrom[i];
+      if(i % 2 == 0 && i != 0) {
+        MAC += ":";
+      } MAC += ChooseFrom[i];
+    }
+  } else {
+    for(int i = 0; i < 6; i++) {
+      if(i % 2 == 0 && i != 0) {
+        MAC += ":";
+      } MAC += ChooseFrom[i];
+    }
   }
 
   return MAC;
@@ -40,7 +49,7 @@ string MACGenerator() {
 
 void Version() {
   cout << "macchangertoo by\033[36m TypingWalrus\033[0m\n";
-  cout << "Version: 0.21";
+  cout << "Version: 0.4";
   exit(0);
 }
 
@@ -54,6 +63,8 @@ void Help() {
   cout << "-p                 Reset MAC\n";
   cout << "-s, --show         Show current MAC\n";
   cout << "-i, --interface    Set the interface\n";
+  cout << "--vendor           Set MAC to known vendors (Nokia, Dell, Apple, etc.)\n";
+  cout << "\033[32m                     macchangertoo -i [INTERFACE] --vendor [VENDOR]\033[0m\n";
   exit(0);
 }
 
@@ -77,7 +88,7 @@ string ShowMAC(string command) {
 
 void MACChange(string mac = "random") {
   if(mac == "random") {
-    mac = MACGenerator();
+    mac = MACGenerator(false);
   }
 
   cout << "\033[33mPermanent MAC:\033[0m " << ShowMAC("ip link | awk '/ether/ {print $6}'");
@@ -86,6 +97,17 @@ void MACChange(string mac = "random") {
   string command = "sudo ip link set dev " + interface + " down && sudo ip link set dev " + interface + " address " + mac + " && sudo ip link set dev " + interface + " up";
   system(command.c_str());
   exit(0);
+}
+
+void WithVendor(string vendor) {
+  map<string, vector<string>> ChooseFromVendors = vendors;
+
+  random_device rd;
+  mt19937 g(rd());
+  shuffle(ChooseFromVendors[vendor].begin(), ChooseFromVendors[vendor].end(), g);
+
+  string MAC = ChooseFromVendors[vendor][0] + ":" + MACGenerator(true);
+  MACChange(MAC);
 }
 
 int main(int argc, char* argv[]) {
@@ -157,6 +179,24 @@ int main(int argc, char* argv[]) {
         }
         string permMAC = ShowMAC("ip link | awk '/ether/ {print $6}'");
         MACChange(permMAC);
+      }
+      
+      else if(arg == "--vendor") {
+        if(argc >= 3) {
+          if(argc >= 5) {
+            for(int j = 3; j < argc; j++) {
+              string arg_j = argv[j];
+              if(arg_j == "-i" || arg_j == "--interface") {
+                interface = argv[j + 1];
+              }
+            }
+          }
+          WithVendor(argv[i + 1]);
+        } else {
+          cout << "\033[31m Error:\033[0m Too few arguments.\n";
+          cout << "Try: \033[33m macchangertoo -i [INTERFACE] --vendor [VENDOR]";
+          exit(0);
+        }
       }
     }
   } else {
