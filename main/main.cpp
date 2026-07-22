@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <random>
 
+// including header
 #include "mac_vendors.hpp"
 
 using namespace std;
@@ -12,7 +13,10 @@ using namespace std;
 // defaults
 string interface = "wlan0";
 
-string MACGenerator(bool known_vendor) {
+bool flag_random, flag_manual, flag_permanent, flag_vendor;
+string flag_manual_address, flag_vendor_name;
+
+string MACGenerator(bool known_vendor = false) {
   random_device rd;
   mt19937 g(rd());
 
@@ -49,7 +53,7 @@ string MACGenerator(bool known_vendor) {
 
 void Version() {
   cout << "macchangertoo by\033[36m TypingWalrus\033[0m\n";
-  cout << "Version: 0.4";
+  cout << "Version: 0.6";
   exit(0);
 }
 
@@ -88,19 +92,25 @@ string ShowMAC(string command) {
 
 void MACChange(string mac = "random") {
   if(mac == "random") {
-    mac = MACGenerator(false);
+    mac = MACGenerator();
   }
 
+  string command = "sudo ip link set dev " + interface + " down && sudo ip link set dev " + interface + " address " + mac + " && sudo ip link set dev " + interface + " up";
   cout << "\033[33mPermanent MAC:\033[0m " << ShowMAC("ip link | awk '/ether/ {print $6}'");
   cout << "\n\033[33mPrevious MAC:\033[0m " << ShowMAC("ip link | awk '/ether/ {print $2}'");
   cout << "\n\033[32mCurrent MAC:\033[0m " << mac;
-  string command = "sudo ip link set dev " + interface + " down && sudo ip link set dev " + interface + " address " + mac + " && sudo ip link set dev " + interface + " up";
   system(command.c_str());
   exit(0);
 }
 
 void WithVendor(string vendor) {
   map<string, vector<string>> ChooseFromVendors = vendors;
+
+  // checking if it exists
+  if(ChooseFromVendors[vendor].empty()) {
+    cout << "\033[31m Error:\033[0m Provided vendor doesn't exist.\n";
+    exit(0);
+  }
 
   random_device rd;
   mt19937 g(rd());
@@ -125,28 +135,13 @@ int main(int argc, char* argv[]) {
       }
 
       else if(arg == "-r") {
-        if(argc >= 4) {
-          for(int j = 2; j < argc; j++) {
-            string arg_j = argv[j];
-            if(arg_j == "-i" || arg_j == "--interface") {
-              interface = argv[j + 1];
-            }
-          }
-        }
-        MACChange();
+        flag_random = true;
       }
 
       else if(arg == "-m") {
-        if(argc >= 3) {
-          if(argc >= 5) {
-            for(int j = 3; j < argc; j++) {
-              string arg_j = argv[j];
-              if(arg_j == "-i" || arg_j == "--interface") {
-                interface = argv[j + 1];
-              }
-            }
-          }
-          MACChange(argv[i + 1]);
+        flag_manual = true;
+        if(argc > i) {
+          flag_manual_address = argv[i + 1];
         } else {
           cout << "\033[31m Error:\033[0m Too few arguments.\n";
           cout << "Try: \033[33m macchangertoo -i [INTERFACE] -m [MAC]";
@@ -155,7 +150,7 @@ int main(int argc, char* argv[]) {
       }
 
       else if(arg == "-i" || arg == "--interface") {
-        if(argc >= 3) {
+        if(argc > i) {
           interface = argv[i + 1];
         } else {
           cout << "\033[31m Error:\033[0m Too few arguments.\n";
@@ -169,29 +164,13 @@ int main(int argc, char* argv[]) {
       }
 
       else if(arg == "-p") {
-        if(argc >= 4) {
-          for(int j = 2; j < argc; j++) {
-            string arg_j = argv[j];
-            if(arg_j == "-i" || arg_j == "--interface") {
-              interface = argv[j + 1];
-            }
-          }
-        }
-        string permMAC = ShowMAC("ip link | awk '/ether/ {print $6}'");
-        MACChange(permMAC);
+        flag_permanent = true;
       }
-      
+
       else if(arg == "--vendor") {
-        if(argc >= 3) {
-          if(argc >= 5) {
-            for(int j = 3; j < argc; j++) {
-              string arg_j = argv[j];
-              if(arg_j == "-i" || arg_j == "--interface") {
-                interface = argv[j + 1];
-              }
-            }
-          }
-          WithVendor(argv[i + 1]);
+        flag_vendor = true;
+        if(argc > i) {
+          flag_vendor_name = argv[i + 1];
         } else {
           cout << "\033[31m Error:\033[0m Too few arguments.\n";
           cout << "Try: \033[33m macchangertoo -i [INTERFACE] --vendor [VENDOR]";
@@ -201,6 +180,28 @@ int main(int argc, char* argv[]) {
     }
   } else {
     Help();
+  }
+
+  // main
+  if((flag_random && flag_random == flag_manual) || (flag_random && flag_random == flag_permanent) || (flag_manual && flag_manual == flag_permanent)) {
+    Help();
+  }
+
+  if(flag_random) {
+    MACChange();
+  }
+
+  else if(flag_manual) {
+    MACChange(flag_manual_address);
+  }
+
+  else if(flag_permanent) {
+    string permMAC = ShowMAC("ip link | awk '/ether/ {print $6}'");
+    MACChange(permMAC);
+  }
+
+  else if(flag_vendor) {
+    WithVendor(flag_vendor_name);
   }
 
   return 0;
