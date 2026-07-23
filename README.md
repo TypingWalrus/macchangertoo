@@ -40,7 +40,7 @@ make
 
 * For it to be accessible anywhere on the system:
 ```bash
-mv macchangertoo /bin
+sudo mv macchangertoo /bin
 ```
 
 ---
