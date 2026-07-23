@@ -12,9 +12,10 @@ using namespace std;
 
 // defaults
 string interface = "wlan0";
+string default_hostname = "";
 
-bool flag_random, flag_manual, flag_permanent, flag_vendor;
-string flag_manual_address, flag_vendor_name;
+bool flag_random, flag_manual, flag_permanent, flag_vendor, flag_hostname;
+string flag_manual_address, flag_vendor_name, flag_hostname_name;
 
 string MACGenerator(bool known_vendor = false) {
   random_device rd;
@@ -63,7 +64,7 @@ void Version() {
   
   cout << "\033[36m" << ascii_art << "\033[0m\n\n";
   cout << "macchangertoo by\033[36m TypingWalrus\033[0m\n";
-  cout << "Version: 0.61";
+  cout << "Version: 1.0";
   exit(0);
 }
 
@@ -79,6 +80,10 @@ void Help() {
   cout << "-i, --interface    Set the interface\n";
   cout << "--vendor           Set MAC to known vendors (Nokia, Dell, Apple, etc.)\n";
   cout << "\033[32m                     macchangertoo -i [INTERFACE] --vendor [VENDOR]\033[0m\n";
+  cout << "--hostname         Change hostname (will show up as that device)\n";
+  cout << "\033[32m                     macchangertoo --hostname [HOSTNAME]\033[0m\n";
+  cout << "--reset-hostname   Reset hostname\n";
+  cout << "\033[32m                     macchangertoo --reset-hostname\033[0m\n";
   exit(0);
 }
 
@@ -110,7 +115,6 @@ void MACChange(string mac = "random") {
   cout << "\n\033[33mPrevious MAC:\033[0m " << ShowMAC("ip link | awk '/ether/ {print $2}'");
   cout << "\n\033[32mCurrent MAC:\033[0m " << mac;
   system(command.c_str());
-  exit(0);
 }
 
 void WithVendor(string vendor) {
@@ -130,7 +134,15 @@ void WithVendor(string vendor) {
   MACChange(MAC);
 }
 
+void ChangeHostname(string name) {
+  string command = "sudo nmcli general hostname " + name + " && sudo service NetworkManager restart";
+
+  system(command.c_str());
+}
+
 int main(int argc, char* argv[]) {
+  freopen("/dev/null", "w", stderr);
+
   // checking the flags
   if(argc > 1) {
     for(int i = 1; i < argc; i++) {
@@ -150,7 +162,7 @@ int main(int argc, char* argv[]) {
 
       else if(arg == "-m") {
         flag_manual = true;
-        if(argc > i) {
+        if(argc > i + 1) {
           flag_manual_address = argv[i + 1];
         } else {
           cout << "\033[31m Error:\033[0m Too few arguments.\n";
@@ -160,7 +172,7 @@ int main(int argc, char* argv[]) {
       }
 
       else if(arg == "-i" || arg == "--interface") {
-        if(argc > i) {
+        if(argc > i + 1) {
           interface = argv[i + 1];
         } else {
           cout << "\033[31m Error:\033[0m Too few arguments.\n";
@@ -179,13 +191,28 @@ int main(int argc, char* argv[]) {
 
       else if(arg == "--vendor") {
         flag_vendor = true;
-        if(argc > i) {
+        if(argc > i + 1) {
           flag_vendor_name = argv[i + 1];
         } else {
           cout << "\033[31m Error:\033[0m Too few arguments.\n";
           cout << "Try: \033[33m macchangertoo -i [INTERFACE] --vendor [VENDOR]";
           exit(0);
         }
+      }
+
+      else if(arg == "--hostname") {
+        flag_hostname = true;
+        if(argc > i + 1) {
+          flag_hostname_name = argv[i + 1];
+        } else {
+          cout << "\033[31m Error:\033[0m Too few arguments.\n";
+          cout << "Try: \033[33m macchangertoo --hostname [HOSTNAME]";
+          exit(0);
+        }
+      }
+
+      else if(arg == "--reset-hostname") {
+        ChangeHostname(default_hostname);
       }
     }
   } else {
@@ -201,17 +228,21 @@ int main(int argc, char* argv[]) {
     MACChange();
   }
 
-  else if(flag_manual) {
+  if(flag_manual) {
     MACChange(flag_manual_address);
   }
 
-  else if(flag_permanent) {
+  if(flag_permanent) {
     string permMAC = ShowMAC("ip link | awk '/ether/ {print $6}'");
     MACChange(permMAC);
   }
 
-  else if(flag_vendor) {
+  if(flag_vendor) {
     WithVendor(flag_vendor_name);
+  }
+
+  if(flag_hostname) {
+    ChangeHostname(flag_hostname_name);
   }
 
   return 0;
