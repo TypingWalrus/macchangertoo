@@ -14,7 +14,7 @@ using namespace std;
 string interface = "wlan0";
 string default_hostname = "";
 
-bool flag_random, flag_manual, flag_permanent, flag_vendor, flag_hostname;
+bool flag_random, flag_manual, flag_permanent, flag_vendor, flag_hostname, flag_keep;
 string flag_manual_address, flag_vendor_name, flag_hostname_name;
 
 string MACGenerator(bool known_vendor = false) {
@@ -64,7 +64,7 @@ void Version() {
   
   cout << "\033[36m" << ascii_art << "\033[0m\n\n";
   cout << "macchangertoo by\033[36m TypingWalrus\033[0m\n";
-  cout << "Version: 1.0";
+  cout << "Version: 1.01";
   exit(0);
 }
 
@@ -84,22 +84,26 @@ void Help() {
   cout << "\033[32m                     macchangertoo --hostname [HOSTNAME]\033[0m\n";
   cout << "--reset-hostname   Reset hostname\n";
   cout << "\033[32m                     macchangertoo --reset-hostname\033[0m\n";
+  cout << "-k, --keep         Keep the same vendor bytes";
   exit(0);
 }
 
-string ShowMAC(string command) {
+string ShowMAC(string command, bool only_vendor = false) {
   FILE* com = popen(command.c_str(), "r");
   string out, mac;
+  int bytes = 17;
   char buf[128];
 
   while(fgets(buf, sizeof(buf), com) != nullptr) {
     out += buf;
   } pclose(com);
 
-  for(auto i : out) {
-    if(i != '\n') {
-      mac += i;
-    }
+  if(only_vendor) {
+    bytes = 9;
+  }
+
+  for(int i = 0; i < bytes; i++) {
+    mac += out[i];
   }
 
   return mac;
@@ -214,6 +218,10 @@ int main(int argc, char* argv[]) {
       else if(arg == "--reset-hostname") {
         ChangeHostname(default_hostname);
       }
+
+      else if(arg == "-k" || arg == "--keep") {
+        flag_keep = true;
+      }
     }
   } else {
     Help();
@@ -243,6 +251,11 @@ int main(int argc, char* argv[]) {
 
   if(flag_hostname) {
     ChangeHostname(flag_hostname_name);
+  }
+
+  if(flag_keep) {
+    string keepMAC = ShowMAC("ip link | awk '/ether/ {print $2}'", true) + MACGenerator(true);
+    MACChange(keepMAC);
   }
 
   return 0;
