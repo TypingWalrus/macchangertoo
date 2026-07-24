@@ -64,27 +64,27 @@ void Version() {
   
   cout << "\033[36m" << ascii_art << "\033[0m\n\n";
   cout << "macchangertoo by\033[36m TypingWalrus\033[0m\n";
-  cout << "Version: 1.01";
+  cout << "Version: 1.02";
   exit(0);
 }
 
 void Help() {
   cout << "Usage:\n";
-  cout << "-v, --version      Show current version\n";
-  cout << "-h, --help         Display this page\n";
-  cout << "-r                 Set Random MAC\n";
-  cout << "-m                 Set MAC manually\n";
+  cout << "\033[33m-v\033[0m,\033[33m --version\033[0m      Show current version\n";
+  cout << "\033[33m-h\033[0m,\033[33m --help\033[0m         Display this page\n";
+  cout << "\033[33m-r\033[0m                 Set Random MAC\n";
+  cout << "\033[33m-m\033[0m                 Set MAC manually\n";
   cout << "\033[32m                     macchangertoo -i [INTERFACE] -m [MAC]\033[0m\n";
-  cout << "-p                 Reset MAC\n";
-  cout << "-s, --show         Show current MAC\n";
-  cout << "-i, --interface    Set the interface\n";
-  cout << "--vendor           Set MAC to known vendors (Nokia, Dell, Apple, etc.)\n";
+  cout << "\033[33m-p\033[0m                 Reset MAC\n";
+  cout << "\033[33m-s\033[0m,\033[33m --show\033[0m         Show current MAC\n";
+  cout << "\033[33m-i\033[0m,\033[33m --interface\033[0m    Set the interface\n";
+  cout << "\033[33m--vendor\033[0m           Set MAC to known vendors (Nokia, Dell, Apple, etc.)\n";
   cout << "\033[32m                     macchangertoo -i [INTERFACE] --vendor [VENDOR]\033[0m\n";
-  cout << "--hostname         Change hostname (will show up as that device)\n";
+  cout << "\033[33m--hostname\033[0m         Change hostname (will show up as that device)\n";
   cout << "\033[32m                     macchangertoo --hostname [HOSTNAME]\033[0m\n";
-  cout << "--reset-hostname   Reset hostname\n";
+  cout << "\033[33m--reset-hostname\033[0m   Reset hostname\n";
   cout << "\033[32m                     macchangertoo --reset-hostname\033[0m\n";
-  cout << "-k, --keep         Keep the same vendor bytes";
+  cout << "\033[33m-k\033[0m,\033[33m --keep\033[0m         Keep the same vendor bytes";
   exit(0);
 }
 
