@@ -64,7 +64,7 @@ void Version() {
   
   cout << "\033[36m" << ascii_art << "\033[0m\n\n";
   cout << "macchangertoo by\033[36m TypingWalrus\033[0m\n";
-  cout << "Version: 1.02";
+  cout << "Version: 1.03";
   exit(0);
 }
 
@@ -91,7 +91,6 @@ void Help() {
 string ShowMAC(string command, bool only_vendor = false) {
   FILE* com = popen(command.c_str(), "r");
   string out, mac;
-  int bytes = 17;
   char buf[128];
 
   while(fgets(buf, sizeof(buf), com) != nullptr) {
@@ -99,11 +98,15 @@ string ShowMAC(string command, bool only_vendor = false) {
   } pclose(com);
 
   if(only_vendor) {
-    bytes = 9;
-  }
-
-  for(int i = 0; i < bytes; i++) {
-    mac += out[i];
+    for(int i = 0; i < 9; i++) {
+      mac += out[i];
+    }
+  } else {
+    for(auto i : out) {
+      if(i != '\n') {
+        mac += i;
+      }
+    }
   }
 
   return mac;
