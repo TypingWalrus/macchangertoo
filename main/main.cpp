@@ -5,14 +5,15 @@
 #include <algorithm>
 #include <random>
 
-// including header
+// including headers
 #include "mac_vendors.hpp"
+#include "defaults.hpp"
 
 using namespace std;
 
 // defaults
-string interface = "wlan0";
-string default_hostname = "";
+string interface = interface_default;
+string default_hostname = default_hostname_default;
 
 bool flag_random, flag_manual, flag_permanent, flag_vendor, flag_hostname, flag_keep;
 string flag_manual_address, flag_vendor_name, flag_hostname_name;
@@ -64,7 +65,7 @@ void Version() {
   
   cout << "\033[36m" << ascii_art << "\033[0m\n\n";
   cout << "macchangertoo by\033[36m TypingWalrus\033[0m\n";
-  cout << "Version: 1.03";
+  cout << "Version: 1.04";
   exit(0);
 }
 
