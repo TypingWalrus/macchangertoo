@@ -13,7 +13,7 @@ While you can fully spoof your device on home networks, it won't work on **publi
 ### **Requirements**
 
 * Should work on any **Linux** system which uses **NetworkManager**.
-* **Packages**: make, g++, git.
+* **Packages**: make, g++, git, awk.
 
 ---
 ### **Installation**
@@ -22,19 +22,7 @@ While you can fully spoof your device on home networks, it won't work on **publi
 ```bash
 git clone https://github.com/TypingWalrus/macchangertoo
 cd macchangertoo/main
-```
 
-* For it to work properly, before compiling change these *main.cpp* lines (12-14) depending on the system you are using:
-```cpp
-// defaults
-string interface = "wlan0";
-string default_hostname = "";
-```
-* Set the *interface* to your interface (if you use multiple choose the one you are most frequently using) in double quotation marks as you wouldn't need to retype it over and over again with the *-i* flag.
-* Set the *default_hostname* to your current hostname (if you don't know what it is just paste the output of "hostname" command) in double quotation marks as you could revert it back.
-
-* Compile it:
-```bash
 make
 ```
 
