@@ -65,7 +65,7 @@ void Version() {
   
   cout << "\033[36m" << ascii_art << "\033[0m\n\n";
   cout << "macchangertoo by\033[36m TypingWalrus\033[0m\n";
-  cout << "Version: 1.04";
+  cout << "Version: 1.05\n";
   exit(0);
 }
 
@@ -85,7 +85,7 @@ void Help() {
   cout << "\033[32m                     macchangertoo --hostname [HOSTNAME]\033[0m\n";
   cout << "\033[33m--reset-hostname\033[0m   Reset hostname\n";
   cout << "\033[32m                     macchangertoo --reset-hostname\033[0m\n";
-  cout << "\033[33m-k\033[0m,\033[33m --keep\033[0m         Keep the same vendor bytes";
+  cout << "\033[33m-k\033[0m,\033[33m --keep\033[0m         Keep the same vendor bytes\n";
   exit(0);
 }
 
@@ -121,7 +121,7 @@ void MACChange(string mac = "random") {
   string command = "sudo ip link set dev " + interface + " down && sudo ip link set dev " + interface + " address " + mac + " && sudo ip link set dev " + interface + " up";
   cout << "\033[33mPermanent MAC:\033[0m " << ShowMAC("ip link | awk '/ether/ {print $6}'");
   cout << "\n\033[33mPrevious MAC:\033[0m " << ShowMAC("ip link | awk '/ether/ {print $2}'");
-  cout << "\n\033[32mCurrent MAC:\033[0m " << mac;
+  cout << "\n\033[32mCurrent MAC:\033[0m " << mac << "\n";
   system(command.c_str());
 }
 
@@ -174,7 +174,7 @@ int main(int argc, char* argv[]) {
           flag_manual_address = argv[i + 1];
         } else {
           cout << "\033[31m Error:\033[0m Too few arguments.\n";
-          cout << "Try: \033[33m macchangertoo -i [INTERFACE] -m [MAC]";
+          cout << "Try: \033[33m macchangertoo -i [INTERFACE] -m [MAC]\n";
           exit(0);
         }
       }
@@ -184,13 +184,13 @@ int main(int argc, char* argv[]) {
           interface = argv[i + 1];
         } else {
           cout << "\033[31m Error:\033[0m Too few arguments.\n";
-          cout << "Try: \033[33m macchangertoo -i [INTERFACE] -r";
+          cout << "Try: \033[33m macchangertoo -i [INTERFACE] -r\n";
           exit(0);
         }
       }
 
       else if(arg == "-s" || arg == "--show") {
-        cout << "\033[33mCurrent MAC:\033[0m " << ShowMAC("ip link | awk '/ether/ {print $2}'");
+        cout << "\033[33mCurrent MAC:\033[0m " << ShowMAC("ip link | awk '/ether/ {print $2}'") << "\n";
       }
 
       else if(arg == "-p") {
@@ -203,7 +203,7 @@ int main(int argc, char* argv[]) {
           flag_vendor_name = argv[i + 1];
         } else {
           cout << "\033[31m Error:\033[0m Too few arguments.\n";
-          cout << "Try: \033[33m macchangertoo -i [INTERFACE] --vendor [VENDOR]";
+          cout << "Try: \033[33m macchangertoo -i [INTERFACE] --vendor [VENDOR]\n";
           exit(0);
         }
       }
@@ -214,7 +214,7 @@ int main(int argc, char* argv[]) {
           flag_hostname_name = argv[i + 1];
         } else {
           cout << "\033[31m Error:\033[0m Too few arguments.\n";
-          cout << "Try: \033[33m macchangertoo --hostname [HOSTNAME]";
+          cout << "Try: \033[33m macchangertoo --hostname [HOSTNAME]\n";
           exit(0);
         }
       }
