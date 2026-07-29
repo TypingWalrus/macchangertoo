@@ -15,8 +15,8 @@ using namespace std;
 string interface = interface_default;
 string default_hostname = default_hostname_default;
 
-bool flag_random, flag_manual, flag_permanent, flag_vendor, flag_hostname, flag_keep;
-string flag_manual_address, flag_vendor_name, flag_hostname_name;
+bool flag_random, flag_manual, flag_permanent, flag_vendor, flag_hostname, flag_keep, flag_ttl;
+string flag_manual_address, flag_vendor_name, flag_hostname_name, flag_ttl_value;
 
 string MACGenerator(bool known_vendor = false) {
   random_device rd;
@@ -65,7 +65,7 @@ void Version() {
   
   cout << "\033[36m" << ascii_art << "\033[0m\n\n";
   cout << "macchangertoo by\033[36m TypingWalrus\033[0m\n";
-  cout << "Version: 1.05\n";
+  cout << "Version: 1.06\n";
   exit(0);
 }
 
@@ -86,6 +86,8 @@ void Help() {
   cout << "\033[33m--reset-hostname\033[0m   Reset hostname\n";
   cout << "\033[32m                     macchangertoo --reset-hostname\033[0m\n";
   cout << "\033[33m-k\033[0m,\033[33m --keep\033[0m         Keep the same vendor bytes\n";
+  cout << "\033[33m-t\033[0m,\033[33m --ttl\033[0m          Modify TTL (Android,MacOS,Linux=64, Windows=128)\n";
+  cout << "\033[32m                     macchangertoo --ttl 128\033[0m\n";
   exit(0);
 }
 
@@ -142,9 +144,15 @@ void WithVendor(string vendor) {
   MACChange(MAC);
 }
 
+// Extras
 void ChangeHostname(string name) {
   string command = "sudo nmcli general hostname " + name + " && sudo service NetworkManager restart";
 
+  system(command.c_str());
+}
+
+void ChangeTTL(string value) {
+  string command = "sudo sysctl -w net.ipv4.ip_default_ttl=" + value;
   system(command.c_str());
 }
 
@@ -226,6 +234,17 @@ int main(int argc, char* argv[]) {
       else if(arg == "-k" || arg == "--keep") {
         flag_keep = true;
       }
+
+      else if(arg == "-t" || arg == "--ttl") {
+        flag_ttl = true;
+        if(argc > i + 1) {
+          flag_ttl_value = argv[i + 1];
+        } else {
+          cout << "\033[31m Error:\033[0m Too few arguments.\n";
+          cout << "Try: \033[33m macchangertoo --ttl [VALUE]\n";
+          exit(0);
+        }
+      }
     }
   } else {
     Help();
@@ -260,6 +279,10 @@ int main(int argc, char* argv[]) {
   if(flag_keep) {
     string keepMAC = ShowMAC("ip link | awk '/ether/ {print $2}'", true) + MACGenerator(true);
     MACChange(keepMAC);
+  }
+
+  if(flag_ttl) {
+    ChangeTTL(flag_ttl_value);
   }
 
   return 0;
