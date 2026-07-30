@@ -65,7 +65,7 @@ void Version() {
   
   cout << "\033[36m" << ascii_art << "\033[0m\n\n";
   cout << "macchangertoo by\033[36m TypingWalrus\033[0m\n";
-  cout << "Version: 1.06\n";
+  cout << "Version: 1.07\n";
   exit(0);
 }
 
@@ -147,13 +147,14 @@ void WithVendor(string vendor) {
 // Extras
 void ChangeHostname(string name) {
   string command = "sudo nmcli general hostname " + name + " && sudo service NetworkManager restart";
-
   system(command.c_str());
 }
 
 void ChangeTTL(string value) {
   string command = "sudo sysctl -w net.ipv4.ip_default_ttl=" + value;
-  system(command.c_str());
+  FILE* com = popen(command.c_str(), "r");
+  pclose(com);
+  cout << "\033[32mCurrent TTL:\033[0m " << value << '\n';
 }
 
 int main(int argc, char* argv[]) {
@@ -179,7 +180,8 @@ int main(int argc, char* argv[]) {
       else if(arg == "-m") {
         flag_manual = true;
         if(argc > i + 1) {
-          flag_manual_address = argv[i + 1];
+          i++;
+          flag_manual_address = argv[i];
         } else {
           cout << "\033[31m Error:\033[0m Too few arguments.\n";
           cout << "Try: \033[33m macchangertoo -i [INTERFACE] -m [MAC]\n";
@@ -189,7 +191,8 @@ int main(int argc, char* argv[]) {
 
       else if(arg == "-i" || arg == "--interface") {
         if(argc > i + 1) {
-          interface = argv[i + 1];
+          i++;
+          interface = argv[i];
         } else {
           cout << "\033[31m Error:\033[0m Too few arguments.\n";
           cout << "Try: \033[33m macchangertoo -i [INTERFACE] -r\n";
@@ -208,7 +211,8 @@ int main(int argc, char* argv[]) {
       else if(arg == "--vendor") {
         flag_vendor = true;
         if(argc > i + 1) {
-          flag_vendor_name = argv[i + 1];
+          i++;
+          flag_vendor_name = argv[i];
         } else {
           cout << "\033[31m Error:\033[0m Too few arguments.\n";
           cout << "Try: \033[33m macchangertoo -i [INTERFACE] --vendor [VENDOR]\n";
@@ -219,7 +223,8 @@ int main(int argc, char* argv[]) {
       else if(arg == "--hostname") {
         flag_hostname = true;
         if(argc > i + 1) {
-          flag_hostname_name = argv[i + 1];
+          i++;
+          flag_hostname_name = argv[i];
         } else {
           cout << "\033[31m Error:\033[0m Too few arguments.\n";
           cout << "Try: \033[33m macchangertoo --hostname [HOSTNAME]\n";
@@ -238,7 +243,8 @@ int main(int argc, char* argv[]) {
       else if(arg == "-t" || arg == "--ttl") {
         flag_ttl = true;
         if(argc > i + 1) {
-          flag_ttl_value = argv[i + 1];
+          i++;
+          flag_ttl_value = argv[i];
         } else {
           cout << "\033[31m Error:\033[0m Too few arguments.\n";
           cout << "Try: \033[33m macchangertoo --ttl [VALUE]\n";
