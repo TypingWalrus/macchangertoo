@@ -65,7 +65,7 @@ void Version() {
   
   cout << "\033[36m" << ascii_art << "\033[0m\n\n";
   cout << "macchangertoo by\033[36m TypingWalrus\033[0m\n";
-  cout << "Version: 1.08\n";
+  cout << "Version: 1.09\n";
   exit(0);
 }
 
@@ -87,11 +87,11 @@ void Help() {
   cout << "\033[32m                     macchangertoo --reset-hostname\033[0m\n";
   cout << "\033[33m-k\033[0m,\033[33m --keep\033[0m         Keep the same vendor bytes\n";
   cout << "\033[33m-t\033[0m,\033[33m --ttl\033[0m          Modify TTL (Android,MacOS,Linux=64, Windows=128)\n";
-  cout << "\033[32m                     macchangertoo --ttl 128\033[0m\n";
+  cout << "\033[32m                     macchangertoo --ttl [TTL]\033[0m\n";
   exit(0);
 }
 
-string ShowMAC(string command, bool only_vendor = false) {
+string ShowMAC(bool perm, string command, bool only_vendor = false) {
   FILE* com = popen(command.c_str(), "r");
   string out, mac;
   char buf[128];
@@ -112,20 +112,40 @@ string ShowMAC(string command, bool only_vendor = false) {
     }
   }
 
+  // Fix
+  if(perm) {
+    string check = "ip link | awk '/ether/ {print $5}'";
+    FILE* com_perm = popen(check.c_str(), "r");
+    char buf_perm[128];
+    string output;
+    while(fgets(buf_perm, sizeof(buf_perm), com_perm) != nullptr) {
+      output += buf_perm;
+    } pclose(com_perm);
+    if(output != "permaddr\n") {
+      mac = ShowMAC(false, "ip link | awk '/ether/ {print $2}'");
+    }
+  }
+
   return mac;
 }
 
-void MACChange(string mac = "random") {
+void MACChange(string mac = "random", bool perm = false) {
   if(mac == "random") {
     mac = MACGenerator();
   }
 
   string command = "sudo ip link set dev " + interface + " down && sudo ip link set dev " + interface + " address " + mac + " && sudo ip link set dev " + interface + " up";
-  cout << "\033[33mPermanent MAC:\033[0m " << ShowMAC("ip link | awk '/ether/ {print $6}'");
-  cout << "\n\033[33mPrevious MAC:\033[0m " << ShowMAC("ip link | awk '/ether/ {print $2}'");
+  cout << "\033[33mPermanent MAC:\033[0m " << ShowMAC(true, "ip link | awk '/ether/ {print $6}'");
+  cout << "\n\033[33mPrevious MAC:\033[0m " << ShowMAC(false, "ip link | awk '/ether/ {print $2}'");
   // checking if the MAC address is valid
   int status = system(command.c_str());
   if(status != 0) {
+    if(perm) {
+      cout << "\n\033[31mError:\033[0m Already set\n";
+      string set_up = "sudo ip link set dev " + interface + " up";
+      system(set_up.c_str());
+      exit(0);
+    }
     cout << "\n\033[31mError:\033[0m Invalid MAC address\n";
     string set_up = "sudo ip link set dev " + interface + " up";
     system(set_up.c_str());
@@ -209,7 +229,7 @@ int main(int argc, char* argv[]) {
       }
 
       else if(arg == "-s" || arg == "--show") {
-        cout << "\033[33mCurrent MAC:\033[0m " << ShowMAC("ip link | awk '/ether/ {print $2}'") << "\n";
+        cout << "\033[33mCurrent MAC:\033[0m " << ShowMAC(false, "ip link | awk '/ether/ {print $2}'") << "\n";
       }
 
       else if(arg == "-p") {
@@ -278,8 +298,8 @@ int main(int argc, char* argv[]) {
   }
 
   if(flag_permanent) {
-    string permMAC = ShowMAC("ip link | awk '/ether/ {print $6}'");
-    MACChange(permMAC);
+    string permMAC = ShowMAC(false, "ip link | awk '/ether/ {print $6}'");
+    MACChange(permMAC, true);
   }
 
   if(flag_vendor) {
@@ -291,7 +311,7 @@ int main(int argc, char* argv[]) {
   }
 
   if(flag_keep) {
-    string keepMAC = ShowMAC("ip link | awk '/ether/ {print $2}'", true) + MACGenerator(true);
+    string keepMAC = ShowMAC(false, "ip link | awk '/ether/ {print $2}'", true) + MACGenerator(true);
     MACChange(keepMAC);
   }
 
