@@ -65,7 +65,7 @@ void Version() {
   
   cout << "\033[36m" << ascii_art << "\033[0m\n\n";
   cout << "macchangertoo by\033[36m TypingWalrus\033[0m\n";
-  cout << "Version: 1.07\n";
+  cout << "Version: 1.08\n";
   exit(0);
 }
 
@@ -123,8 +123,16 @@ void MACChange(string mac = "random") {
   string command = "sudo ip link set dev " + interface + " down && sudo ip link set dev " + interface + " address " + mac + " && sudo ip link set dev " + interface + " up";
   cout << "\033[33mPermanent MAC:\033[0m " << ShowMAC("ip link | awk '/ether/ {print $6}'");
   cout << "\n\033[33mPrevious MAC:\033[0m " << ShowMAC("ip link | awk '/ether/ {print $2}'");
+  // checking if the MAC address is valid
+  int status = system(command.c_str());
+  if(status != 0) {
+    cout << "\n\033[31mError:\033[0m Invalid MAC address\n";
+    string set_up = "sudo ip link set dev " + interface + " up";
+    system(set_up.c_str());
+    exit(0);
+  }
+
   cout << "\n\033[32mCurrent MAC:\033[0m " << mac << "\n";
-  system(command.c_str());
 }
 
 void WithVendor(string vendor) {
@@ -132,7 +140,7 @@ void WithVendor(string vendor) {
 
   // checking if it exists
   if(ChooseFromVendors[vendor].empty()) {
-    cout << "\033[31m Error:\033[0m Provided vendor doesn't exist.\n";
+    cout << "\033[31mError:\033[0m Provided vendor doesn't exist.\n";
     exit(0);
   }
 
@@ -183,7 +191,7 @@ int main(int argc, char* argv[]) {
           i++;
           flag_manual_address = argv[i];
         } else {
-          cout << "\033[31m Error:\033[0m Too few arguments.\n";
+          cout << "\033[31mError:\033[0m Too few arguments.\n";
           cout << "Try: \033[33m macchangertoo -i [INTERFACE] -m [MAC]\n";
           exit(0);
         }
@@ -194,7 +202,7 @@ int main(int argc, char* argv[]) {
           i++;
           interface = argv[i];
         } else {
-          cout << "\033[31m Error:\033[0m Too few arguments.\n";
+          cout << "\033[31mError:\033[0m Too few arguments.\n";
           cout << "Try: \033[33m macchangertoo -i [INTERFACE] -r\n";
           exit(0);
         }
@@ -214,7 +222,7 @@ int main(int argc, char* argv[]) {
           i++;
           flag_vendor_name = argv[i];
         } else {
-          cout << "\033[31m Error:\033[0m Too few arguments.\n";
+          cout << "\033[31mError:\033[0m Too few arguments.\n";
           cout << "Try: \033[33m macchangertoo -i [INTERFACE] --vendor [VENDOR]\n";
           exit(0);
         }
@@ -226,7 +234,7 @@ int main(int argc, char* argv[]) {
           i++;
           flag_hostname_name = argv[i];
         } else {
-          cout << "\033[31m Error:\033[0m Too few arguments.\n";
+          cout << "\033[31mError:\033[0m Too few arguments.\n";
           cout << "Try: \033[33m macchangertoo --hostname [HOSTNAME]\n";
           exit(0);
         }
@@ -246,7 +254,7 @@ int main(int argc, char* argv[]) {
           i++;
           flag_ttl_value = argv[i];
         } else {
-          cout << "\033[31m Error:\033[0m Too few arguments.\n";
+          cout << "\033[31mError:\033[0m Too few arguments.\n";
           cout << "Try: \033[33m macchangertoo --ttl [VALUE]\n";
           exit(0);
         }
