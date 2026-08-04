@@ -7,9 +7,22 @@ Yet another tool which changes device's MAC address.
 ---
 ### **About**
 
-This MAC changer tool offers more than any other tool you have been using (give it a try) but works only on Linux. With it you can: **Randomize your MAC address, Change it manually and Reset it back to permanent, Set the MAC address to known vendors, Change the hostname and Reset it back, Change TTL**
+This tool changes your device's MAC address. It offers more features than any other tool you have been using **even with extra ones** (give it a try) but works only on Linux.
 
 While you can fully spoof your device on home networks, it won't work on **public** networks because of WIDS and WIPS.
+
+---
+
+### **Features**
+
+* With it you can:
+  * Randomize your MAC address
+  * Change it manually
+  * Reset it back to permanent
+  * Set MAC address to known vendors
+  * Change the hostname
+  * Reset the hostname
+  * Change TTL
 
 ---
 ### **Requirements**
