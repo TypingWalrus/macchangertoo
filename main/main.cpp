@@ -65,7 +65,7 @@ void Version() {
   
   cout << "\033[36m" << ascii_art << "\033[0m\n\n";
   cout << "macchangertoo by\033[36m TypingWalrus\033[0m\n";
-  cout << "Version: 1.09\n";
+  cout << "Version: 1.1\n";
   exit(0);
 }
 
@@ -278,6 +278,10 @@ int main(int argc, char* argv[]) {
           cout << "Try: \033[33m macchangertoo --ttl [VALUE]\n";
           exit(0);
         }
+      }
+
+      else {
+        Help();
       }
     }
   } else {
