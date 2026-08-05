@@ -65,7 +65,7 @@ void Version() {
   
   cout << "\033[36m" << ascii_art << "\033[0m\n\n";
   cout << "macchangertoo by\033[36m TypingWalrus\033[0m\n";
-  cout << "Version: 1.1\n";
+  cout << "Version: 1.11\n";
   exit(0);
 }
 
@@ -84,10 +84,10 @@ void Help() {
   cout << "\033[33m--hostname\033[0m         Change hostname (will show up as that device)\n";
   cout << "\033[32m                     macchangertoo --hostname [HOSTNAME]\033[0m\n";
   cout << "\033[33m--reset-hostname\033[0m   Reset hostname\n";
-  cout << "\033[32m                     macchangertoo --reset-hostname\033[0m\n";
   cout << "\033[33m-k\033[0m,\033[33m --keep\033[0m         Keep the same vendor bytes\n";
   cout << "\033[33m-t\033[0m,\033[33m --ttl\033[0m          Modify TTL (Android,MacOS,Linux=64, Windows=128)\n";
   cout << "\033[32m                     macchangertoo --ttl [TTL]\033[0m\n";
+  cout << "\nIf you encounter any bugs: \033[34mhttps://github.com/TypingWalrus/macchangertoo\033[0m\n";
   exit(0);
 }
 
@@ -176,6 +176,7 @@ void WithVendor(string vendor) {
 void ChangeHostname(string name) {
   string command = "sudo nmcli general hostname " + name + " && sudo service NetworkManager restart";
   system(command.c_str());
+  cout << "\033[32mHostname:\033[0m " << name << '\n';
 }
 
 void ChangeTTL(string value) {
