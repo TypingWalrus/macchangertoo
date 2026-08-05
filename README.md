@@ -19,7 +19,7 @@ While you can fully spoof your device on home networks, it won't work on **publi
   * Randomize your MAC address
   * Change it manually
   * Reset it back to permanent
-  * Set MAC address to known vendors
+  * Set MAC address to known vendors (Used [this](https://gist.github.com/aallan/b4bb86db86079509e6159810ae9bd3e4), thanks.)
   * Change the hostname
   * Reset the hostname
   * Change TTL
