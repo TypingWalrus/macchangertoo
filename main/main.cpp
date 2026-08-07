@@ -15,8 +15,14 @@ using namespace std;
 string interface = interface_default;
 string default_hostname = default_hostname_default;
 
-bool flag_random, flag_manual, flag_permanent, flag_vendor, flag_hostname, flag_keep, flag_ttl;
+bool flag_random, flag_manual, flag_permanent, flag_vendor, flag_hostname, flag_keep, flag_ttl, flag_debug;
 string flag_manual_address, flag_vendor_name, flag_hostname_name, flag_ttl_value;
+
+void CheckDebug(string com) {
+  if(flag_debug) {
+    cout << "\033[31m" << com << "\033[0m\n";
+  }
+}
 
 string MACGenerator(bool known_vendor = false) {
   random_device rd;
@@ -65,7 +71,7 @@ void Version() {
   
   cout << "\033[36m" << ascii_art << "\033[0m\n\n";
   cout << "macchangertoo by\033[36m TypingWalrus\033[0m\n";
-  cout << "Version: 1.11\n";
+  cout << "Version: 1.12\n";
   exit(0);
 }
 
@@ -87,11 +93,14 @@ void Help() {
   cout << "\033[33m-k\033[0m,\033[33m --keep\033[0m         Keep the same vendor bytes\n";
   cout << "\033[33m-t\033[0m,\033[33m --ttl\033[0m          Modify TTL (Android,MacOS,Linux=64, Windows=128)\n";
   cout << "\033[32m                     macchangertoo --ttl [TTL]\033[0m\n";
+  cout << "\033[33m--debug\033[0m            Debug\n";
   cout << "\nIf you encounter any bugs: \033[34mhttps://github.com/TypingWalrus/macchangertoo\033[0m\n";
   exit(0);
 }
 
 string ShowMAC(bool perm, string command, bool only_vendor = false) {
+  CheckDebug(command);
+
   FILE* com = popen(command.c_str(), "r");
   string out, mac;
   char buf[128];
@@ -115,9 +124,13 @@ string ShowMAC(bool perm, string command, bool only_vendor = false) {
   // Fix
   if(perm) {
     string check = "ip link | awk '/ether/ {print $5}'";
+
+    CheckDebug(check);
+
     FILE* com_perm = popen(check.c_str(), "r");
     char buf_perm[128];
     string output;
+
     while(fgets(buf_perm, sizeof(buf_perm), com_perm) != nullptr) {
       output += buf_perm;
     } pclose(com_perm);
@@ -135,20 +148,32 @@ void MACChange(string mac = "random", bool perm = false) {
   }
 
   string command = "sudo ip link set dev " + interface + " down && sudo ip link set dev " + interface + " address " + mac + " && sudo ip link set dev " + interface + " up";
+
+  CheckDebug(command);
+
   cout << "\033[33mPermanent MAC:\033[0m " << ShowMAC(true, "ip link | awk '/ether/ {print $6}'");
   cout << "\n\033[33mPrevious MAC:\033[0m " << ShowMAC(false, "ip link | awk '/ether/ {print $2}'");
+
   // checking if the MAC address is valid
   int status = system(command.c_str());
   if(status != 0) {
     if(perm) {
       cout << "\n\033[31mError:\033[0m Already set\n";
       string set_up = "sudo ip link set dev " + interface + " up";
+
+      CheckDebug(set_up);
+
       system(set_up.c_str());
+
       exit(0);
     }
     cout << "\n\033[31mError:\033[0m Invalid MAC address\n";
     string set_up = "sudo ip link set dev " + interface + " up";
+
+    CheckDebug(set_up);
+
     system(set_up.c_str());
+
     exit(0);
   }
 
@@ -175,20 +200,25 @@ void WithVendor(string vendor) {
 // Extras
 void ChangeHostname(string name) {
   string command = "sudo nmcli general hostname " + name + " && sudo service NetworkManager restart";
+
+  CheckDebug(command);
+
   system(command.c_str());
+
   cout << "\033[32mHostname:\033[0m " << name << '\n';
 }
 
 void ChangeTTL(string value) {
   string command = "sudo sysctl -w net.ipv4.ip_default_ttl=" + value;
+
+  CheckDebug(command);
+
   FILE* com = popen(command.c_str(), "r");
   pclose(com);
   cout << "\033[32mCurrent TTL:\033[0m " << value << '\n';
 }
 
 int main(int argc, char* argv[]) {
-  freopen("/dev/null", "w", stderr);
-
   // checking the flags
   if(argc > 1) {
     for(int i = 1; i < argc; i++) {
@@ -281,12 +311,20 @@ int main(int argc, char* argv[]) {
         }
       }
 
+      else if(arg == "--debug") {
+        flag_debug = true;
+      }
+
       else {
         Help();
       }
     }
   } else {
     Help();
+  }
+
+  if(!flag_debug) {
+    freopen("/dev/null", "w", stderr);
   }
 
   // main
