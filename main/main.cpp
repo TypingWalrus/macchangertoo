@@ -18,47 +18,52 @@ string default_hostname = default_hostname_default;
 bool flag_random, flag_manual, flag_permanent, flag_vendor, flag_hostname, flag_keep, flag_ttl, flag_debug;
 string flag_manual_address, flag_vendor_name, flag_hostname_name, flag_ttl_value;
 
+// When debug mode is on, every command is shown
 void CheckDebug(string com) {
   if(flag_debug) {
-    cout << "\033[31m" << com << "\033[0m\n";
+    cout << "\033[31m" << com << "\033[0m";
   }
 }
 
+// Generates random MAC addresses
 string MACGenerator(bool known_vendor = false) {
   random_device rd;
   mt19937 g(rd());
+  uniform_int_distribution<> dist(0, 15);
 
-  string ChooseFrom = "aabbccddeeff00112233445566778899";
-  shuffle(ChooseFrom.begin(), ChooseFrom.end(), g);
-
+  string ChooseFrom = "abcdef0123456789";
   string MAC;
+
   if(!known_vendor) {
     for(int i = 0; i < 12; i++) {
-      if(i == 0 && isdigit(ChooseFrom[i]) && ChooseFrom[i] % 2 != 0) {
-        ChooseFrom[i]--;
+      int rand = dist(g);
+      if(i == 0 && isdigit(ChooseFrom[rand]) && ChooseFrom[rand] % 2 != 0) {
+        ChooseFrom[rand]--;
       }
       if(i == 1) {
-        int value = stoi(string(1, ChooseFrom[1]), nullptr, 16);
+        int value = stoi(string(1, ChooseFrom[rand]), nullptr, 16);
         if(value % 2 != 0) {
-          ChooseFrom[1] = "0123456789abcdef"[value - 1];
+          ChooseFrom[rand] = "0123456789abcdef"[value - 1];
         }
       }
 
       if(i % 2 == 0 && i != 0) {
         MAC += ":";
-      } MAC += ChooseFrom[i];
+      } MAC += ChooseFrom[rand];
     }
   } else {
     for(int i = 0; i < 6; i++) {
+      int rand = dist(g);
       if(i % 2 == 0 && i != 0) {
         MAC += ":";
-      } MAC += ChooseFrom[i];
+      } MAC += ChooseFrom[rand];
     }
   }
 
   return MAC;
 }
 
+// Shows version
 void Version() {
   // Logo
   string ascii_art = R"(
@@ -71,10 +76,11 @@ void Version() {
   
   cout << "\033[36m" << ascii_art << "\033[0m\n\n";
   cout << "macchangertoo by\033[36m TypingWalrus\033[0m\n";
-  cout << "Version: 1.12\n";
+  cout << "Version: 1.13\n";
   exit(0);
 }
 
+// Help page
 void Help() {
   cout << "Usage:\n";
   cout << "\033[33m-v\033[0m,\033[33m --version\033[0m      Show current version\n";
@@ -98,6 +104,7 @@ void Help() {
   exit(0);
 }
 
+// Shows specified MAC address
 string ShowMAC(bool perm, string command, bool only_vendor = false) {
   CheckDebug(command);
 
@@ -142,6 +149,7 @@ string ShowMAC(bool perm, string command, bool only_vendor = false) {
   return mac;
 }
 
+// Changes MAC address
 void MACChange(string mac = "random", bool perm = false) {
   if(mac == "random") {
     mac = MACGenerator();
@@ -180,6 +188,7 @@ void MACChange(string mac = "random", bool perm = false) {
   cout << "\n\033[32mCurrent MAC:\033[0m " << mac << "\n";
 }
 
+// It accesses the header where all the vendors are stored
 void WithVendor(string vendor) {
   map<string, vector<string>> ChooseFromVendors = vendors;
 
@@ -191,13 +200,14 @@ void WithVendor(string vendor) {
 
   random_device rd;
   mt19937 g(rd());
-  shuffle(ChooseFromVendors[vendor].begin(), ChooseFromVendors[vendor].end(), g);
+  uniform_int_distribution<> dist(0, ChooseFromVendors[vendor].size() - 1);
 
-  string MAC = ChooseFromVendors[vendor][0] + ":" + MACGenerator(true);
+  string MAC = ChooseFromVendors[vendor][dist(g)] + ":" + MACGenerator(true);
   MACChange(MAC);
 }
 
 // Extras
+// Changes hostname
 void ChangeHostname(string name) {
   string command = "sudo nmcli general hostname " + name + " && sudo service NetworkManager restart";
 
@@ -208,6 +218,7 @@ void ChangeHostname(string name) {
   cout << "\033[32mHostname:\033[0m " << name << '\n';
 }
 
+// Changes TTL
 void ChangeTTL(string value) {
   string command = "sudo sysctl -w net.ipv4.ip_default_ttl=" + value;
 
@@ -316,6 +327,7 @@ int main(int argc, char* argv[]) {
       }
 
       else {
+        cout << "\033[31mError: \033[0mUnknown option:\033[33m " << argv[i] << "\n\n";
         Help();
       }
     }
