@@ -1,8 +1,5 @@
-macchangertoo: setup main.o
-	g++ main.o -o macchangertoo
-
-main.o: main.cpp mac_vendors.hpp defaults.hpp
-	g++ -c main.cpp -o main.o
+macchangertoo: main.cpp mac_vendors.hpp defaults.hpp
+	g++ main.cpp -o macchangertoo
 
 defaults.hpp: setup
 	./setup
