@@ -17,4 +17,4 @@ Here is how you can contribute:
 * Keep your code clean.
 * Don't add unnecessary dependencies.
 
-Please note that all contributors are expected to follow our [Code of Conduct](CODE_OF_CONDUCT.md) to keep things friendly.
+Please note that all contributors are expected to follow my [Code of Conduct](CODE_OF_CONDUCT.md) to keep things friendly.
