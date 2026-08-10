@@ -27,7 +27,7 @@ While you can fully spoof your device on home networks, it won't work on **publi
 ---
 ### **Requirements**
 
-* Should work on any **Linux** (even on **Android** (with sudo configured)(doesn't fully work)) system which uses **NetworkManager**.
+* Should work on any **Linux** system which uses **NetworkManager**.
 * **Packages**: make, g++, git, awk, ip.
 
 ---
