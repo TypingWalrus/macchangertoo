@@ -28,7 +28,7 @@ While you can fully spoof your device on home networks, it won't work on **publi
 ### **Requirements**
 
 * Should work on any **Linux** system which uses **NetworkManager**.
-* **Packages**: make, g++, git, awk, ip.
+* **Packages**: make, g++, git, awk, ip, hostname (inetutils).
 
 ---
 ### **Usage**
