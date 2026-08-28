@@ -47,7 +47,7 @@ make
 ```
 
 > [!NOTE]
-> If you want to install lighter version, run:
+> If you want to install a lighter version, run:
 ```bash
 git clone https://github.com/TypingWalrus/macchangertoo
 cd "macchangertoo/light version"
