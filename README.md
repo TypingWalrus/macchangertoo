@@ -46,6 +46,16 @@ cd macchangertoo/main
 make
 ```
 
+> [!NOTE]
+> If you want to install lighter version, run:
+```bash
+git clone https://github.com/TypingWalrus/macchangertoo
+cd "macchangertoo/light version"
+
+make
+```
+
+
 * For it to be accessible anywhere on the system:
 ```bash
 sudo mv macchangertoo /bin
